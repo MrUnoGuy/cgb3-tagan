@@ -266,7 +266,7 @@ function startExam(type) {
 
     const examTitle = type === 'itog' ? 'Итоговый' : 'Экзамен по ПМП';
     document.getElementById('exam-title').innerText = examTitle;
-    document.getElementById('user-info').innerHTML = <b>Сотрудник:</b> ${staticInfo};
+    document.getElementById('user-info').innerHTML = `<b>Сотрудник:</b> ${staticInfo}`;
 
     const form = document.getElementById('exam-form');
     form.innerHTML = ''; 
