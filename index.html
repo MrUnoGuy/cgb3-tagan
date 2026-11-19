@@ -103,8 +103,8 @@
             },
             {
                 text: "Какие поставки являются основными для ЦГБ?",
-                options: ["ЦМС, ГСМО", "ВС, ОБ-7", "ЗМХ, КРАЗ"],
-                correct: 0
+                options: ["ЦМС, ГСМО", "ВС, ОБ-7", "ЗМХ, МС"],
+                correct: 2
             },
             {
                 text: "Сколько минимум сотрудников силовых структур требуется для поставки?",
@@ -242,7 +242,7 @@
         alert("Пожалуйста, введите Имя Фамилия | Статик перед началом!");
         return;
     }
-
+    console.log(type, questionsDB[type]);
     currentUser.static = staticInfo;
     currentExamType = type;
     currentQuestions = questionsDB[type];
