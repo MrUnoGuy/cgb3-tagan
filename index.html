@@ -80,7 +80,7 @@
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVQXcMENZIVFrOyFwd6CJmVPNZSEKB6BPEHcdmnKIbP6893GJlGYAQvEr9cR-8Tx5fxg/exec"
     // ТУТ ТВОИ ВОПРОСЫ. Формат: correct - это индекс правильного ответа (с 0!)
     const questionsDB = {
-        exam: [
+        itog: [
             {
                 text: "Чем оказывается ПМП?",
                 options: ["Дефибриллятором", "Перикисью", "Обезболом"],
@@ -250,7 +250,7 @@
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('exam-screen').style.display = 'block';
     
-    const examTitle = type === 'ustav' ? 'Экзамен по Уставу' : 'Экзамен по ПМП';
+    const examTitle = type === 'itog' ? 'Итоговый' : 'Экзамен по ПМП';
     document.getElementById('exam-title').innerText = examTitle;
     document.getElementById('user-info').innerHTML = `<b>Сотрудник:</b> ${staticInfo}`;
 
@@ -283,7 +283,7 @@
 
     const total = currentQuestions.length;
     const score = Math.round((correctCount / total) * 100);
-    const passed = score >= 85;
+    const passed = score >= 90;
     const examName = currentExamType === 'ustav' ? 'Устав' : 'ПМП';
 
     // --- ОТПРАВКА ДАННЫХ В GOOGLE ТАБЛИЦУ ---
