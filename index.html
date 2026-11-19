@@ -242,7 +242,8 @@
         alert("Пожалуйста, введите Имя Фамилия | Статик перед началом!");
         return;
     }
-    console.log(type, questionsDB[type]);
+ 
+    
     currentUser.static = staticInfo;
     currentExamType = type;
     currentQuestions = questionsDB[type];
@@ -256,7 +257,11 @@
 
     const form = document.getElementById('exam-form');
     form.innerHTML = ''; 
-
+    console.log("----Отрисовка пошла----");
+    console.log("Тип экзамена", type);
+    console.log("Массив вопросов:", currentQuestions);
+    console.log("Длинна Массива:", currentQuestions ? currentQuestions.lenght : "Массива НЕТ");
+        
     currentQuestions.forEach((q, index) => {
         let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
         q.options.forEach((opt, optIndex) => {
