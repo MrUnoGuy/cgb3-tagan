@@ -233,60 +233,43 @@
     let currentUser = { static: "" };
 
 function startExam(type) {
-    // Берем только статик
     const staticInfo = document.getElementById('input-static').value.trim();
 
     if (!staticInfo) {
-        alert("Пожалуйста, введите Имя Фамилия | Статик перед началом!");
+        alert("Введите Имя и Статик!");
         return;
     }
 
     currentUser.static = staticInfo;
     currentExamType = type;
-
-    // --- ЖЁСТКАЯ ПРИВЯЗКА ВОПРОСОВ ---
-    if (type === 'itog') {
-        currentQuestions = questionsDB['itog'];
-    } else {
-        currentQuestions = []; // Если пришел неизвестный тип
-    }
-
-    console.log("Проверка. Тип:", type);
-    console.log("Проверка. Вопросы в currentQuestions:", currentQuestions);
-
-    // Если вопросы по какой-то причине не загрузились, остановимся
-    if (!currentQuestions || currentQuestions.length === 0) {
-        alert("Ошибка: Вопросы для экзамена не найдены!");
-        return;
-    }
     
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('exam-screen').style.display = 'block';
+    // Берем вопросы напрямую, без проверок type
+    currentQuestions = questionsDB['itog']; 
 
-    // Прячем стартовый экран
+    // Принудительно переключаем экраны СРАЗУ, до отрисовки
     document.getElementById('start-screen').style.display = 'none';
-    // Показываем экзамен
     document.getElementById('exam-screen').style.display = 'block';
-    // Прячем результаты
     document.getElementById('result-screen').style.display = 'none';
-    
-    const examTitle = type === 'itog' ? 'Итоговый' : 'Экзамен по ПМП';
-    document.getElementById('exam-title').innerText = examTitle;
+
+    // Меняем заголовок и инфу о юзере
+    document.getElementById('exam-title').innerText = 'Итоговый экзамен';
     document.getElementById('user-info').innerHTML = `<b>Сотрудник:</b> ${staticInfo}`;
 
     const form = document.getElementById('exam-form');
     form.innerHTML = ''; 
 
+    // Рисуем вопросы (используем map и join для надежности)
+    let allHtml = '';
     currentQuestions.forEach((q, index) => {
         let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
         q.options.forEach((opt, optIndex) => {
             html += `<label class="option"><input type="radio" name="q${index}" value="${optIndex}" required> ${opt}</label>`;
         });
         html += `</div>`;
-        form.innerHTML += html;
+        allHtml += html;
     });
-
-    console.log("Отрисовка завершена!");
+    
+    form.innerHTML = allHtml; // Вставляем всё разом
 }
     function submitExam() {
     const form = document.getElementById('exam-form');
