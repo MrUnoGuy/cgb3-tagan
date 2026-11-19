@@ -272,11 +272,11 @@ function startExam(type) {
     form.innerHTML = ''; 
 
     currentQuestions.forEach((q, index) => {
-        let html = <div class="question"><div class="q-text">${index + 1}. ${q.text}</div>;
+        let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
         q.options.forEach((opt, optIndex) => {
-            html += <label class="option"><input type="radio" name="q${index}" value="${optIndex}" required> ${opt}</label>;
+            html += `<label class="option"><input type="radio" name="q${index}" value="${optIndex}" required> ${opt}</label>`;
         });
-        html += </div>;
+        html += `</div>`;
         form.innerHTML += html;
     });
 
