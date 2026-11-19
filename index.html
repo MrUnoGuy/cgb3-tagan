@@ -103,7 +103,7 @@
             },
             {
                 text: "Какие поставки являются основными для ЦГБ?",
-                options: ["ЦМС, ГСМО", "ВС, ОБ-7", "ЦМС, КРАЗ"],
+                options: ["ЦМС, ГСМО", "ВС, ОБ-7", "ЗМХ, КРАЗ"],
                 correct: 0
             },
             {
@@ -284,7 +284,7 @@
     const total = currentQuestions.length;
     const score = Math.round((correctCount / total) * 100);
     const passed = score >= 90;
-    const examName = currentExamType === 'ustav' ? 'Устав' : 'ПМП';
+    const examName = currentExamType === 'itog' ? 'Итоговый' : 'ПМП';
 
     // --- ОТПРАВКА ДАННЫХ В GOOGLE ТАБЛИЦУ ---
     const payload = {
