@@ -261,9 +261,16 @@ function startExam(type) {
         return;
     }
     
-      document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'none';
     document.getElementById('exam-screen').style.display = 'block';
 
+    // Прячем стартовый экран
+    document.getElementById('start-screen').style.display = 'none';
+    // Показываем экзамен
+    document.getElementById('exam-screen').style.display = 'block';
+    // Прячем результаты
+    document.getElementById('result-screen').style.display = 'none';
+    
     const examTitle = type === 'itog' ? 'Итоговый' : 'Экзамен по ПМП';
     document.getElementById('exam-title').innerText = examTitle;
     document.getElementById('user-info').innerHTML = `<b>Сотрудник:</b> ${staticInfo}`;
