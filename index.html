@@ -233,43 +233,54 @@
     let currentExamType = "";
     let currentUser = { static: "" };
 
-    function startExam(type) {
+function startExam(type) {
     // Берем только статик
     const staticInfo = document.getElementById('input-static').value.trim();
 
-    // Проверяем только статик
     if (!staticInfo) {
         alert("Пожалуйста, введите Имя Фамилия | Статик перед началом!");
         return;
     }
- 
-    
+
     currentUser.static = staticInfo;
     currentExamType = type;
-    currentQuestions = questionsDB[type];
+
+    // --- ЖЁСТКАЯ ПРИВЯЗКА ВОПРОСОВ ---
+    if (type === 'itog') {
+        currentQuestions = questionsDB['itog'];
+    } else {
+        currentQuestions = []; // Если пришел неизвестный тип
+    }
+
+    console.log("Проверка. Тип:", type);
+    console.log("Проверка. Вопросы в currentQuestions:", currentQuestions);
+
+    // Если вопросы по какой-то причине не загрузились, остановимся
+    if (!currentQuestions || currentQuestions.length === 0) {
+        alert("Ошибка: Вопросы для экзамена не найдены!");
+        return;
+    }
     
-    document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('start-screen').style.display = 'none';
     document.getElementById('exam-screen').style.display = 'block';
-    
+
     const examTitle = type === 'itog' ? 'Итоговый' : 'Экзамен по ПМП';
     document.getElementById('exam-title').innerText = examTitle;
-    document.getElementById('user-info').innerHTML = `<b>Сотрудник:</b> ${staticInfo}`;
+    document.getElementById('user-info').innerHTML = <b>Сотрудник:</b> ${staticInfo};
 
     const form = document.getElementById('exam-form');
     form.innerHTML = ''; 
-    console.log("----Отрисовка пошла----");
-    console.log("Тип экзамена", type);
-    console.log("Массив вопросов:", currentQuestions);
-    console.log("Длинна Массива:", currentQuestions ? currentQuestions.lenght : "Массива НЕТ");
-        
+
     currentQuestions.forEach((q, index) => {
-        let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
+        let html = <div class="question"><div class="q-text">${index + 1}. ${q.text}</div>;
         q.options.forEach((opt, optIndex) => {
-            html += `<label class="option"><input type="radio" name="q${index}" value="${optIndex}" required> ${opt}</label>`;
+            html += <label class="option"><input type="radio" name="q${index}" value="${optIndex}" required> ${opt}</label>;
         });
-        html += `</div>`;
+        html += </div>;
         form.innerHTML += html;
     });
+
+    console.log("Отрисовка завершена!");
 }
     function submitExam() {
     const form = document.getElementById('exam-form');
