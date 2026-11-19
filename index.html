@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Экзамен ЦГБ№3</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f4f6f8; padding: 20px; display: flex; justify-content: center; }
+        .card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
+        h1 { font-size: 22px; margin-bottom: 20px; }
+        .question { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .q-text { font-weight: 600; margin-bottom: 10px; }
+        .option { display: block; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; }
+        .option:hover { background: #f0f4f8; }
+        .btn { background: #2563eb; color: #fff; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 20px;}
+        .btn:hover { background: #1d4ed8; }
+        .result { text-align: center; display: none; }
+        .score { font-size: 48px; font-weight: bold; margin: 10px 0; }
+        .pass { color: #16a34a; }
+        .fail { color: #dc2626; }
+    </style>
+</head>
+<body>
+﻿<div class="card" id="start-screen">
+    <h1 style="text-align: center; color: #2563eb;">Система знаний ЦГБ№3</h1>
+    <p style="text-align: center; color: #64748b; margin-bottom: 30px;">Выберите раздел для прохождения аттестации</p>
+    
+    <!-- Поля для ввода данных (общие для всех) -->
+    <div class="input-group" style="margin-bottom: 30px;">
+        <label style="font-weight: bold;">Имя Фамилия | Статик (IC):</label>
+        <input type="text" id="input-static" placeholder="Иван Иванов | 123-456" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px;">
+    </div>
+    <div style="text-align: center; margin-bottom: 30px;">
+    
+    <!-- НЕВИДИМАЯ КНОПКА АДМИНА -->
+    <!-- Вставь сюда ссылку на твою Google Таблицу или на страницу admin.html -->
+    <a href="adidimiiin.html" target="_blank" style="display: block; width: 100%; height: 15px; margin-top: 10px; opacity: 0; text-decoration: none; cursor: default;"> </a>
+</div>
+    <!-- Сетка для карточек -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        
+        <!-- Блок Устава -->
+        <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center;">
+            <h2 style="color: #1e40af; margin-top: 0;">Лекционный блок</h2>
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">Изучите правила больницы.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn" style="background: #64748b;" onclick="window.location.href='lecture_ustav.html'">📖 Читать лекцию по уставу</button>
+                <button class="btn" style="background: #64748b;" onclick="window.location.href='lecture_ustav.html'">📖 Читать лекцию по ПМП</button>
+            </div>
+        </div>
+
+        
+        <div style="background: #FA8072; border: 2px solid #000000; border-radius: 12px; padding: 20px; text-align: center;">
+            <h2 style="color: #000000; margin-top: 0;">Итог знаний.</h2>
+            <p style="font-size: 14px; color: #000000; margin-bottom: 20px;">Итоговый экзамен. Готов?</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn" style="background: #DC143C;" onclick="startExam('itog')">📝 Сдать экзамен</button>
+            </div>
+        </div>
+</div>
+
+<div class="card" id="exam-screen" style="display: none;">
+    <h1 id="exam-title">Экзамен</h1>
+    <div id="user-info" style="background: #2c3e50; color: white; padding: 10px; border-radius: 8px; margin-bottom: 20px;"></div>
+    <form id="exam-form"></form>
+    <button class="btn" onclick="submitExam()">Завершить</button>
+</div>
+
+<div class="card result" id="result-screen">
+    <h1 id="result-title">Результат</h1>
+    <div class="score" id="score-display">0%</div>
+    <p id="result-user" style="font-size: 18px; margin-bottom: 20px; color: #475569;"></p>
+    <p id="score-text">Правильных ответов: 0 из 0</p>
+    <p id="verdict-text"></p>
+    <button class="btn" onclick="location.reload()">На главную</button>
+</div>
+
+<script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVQXcMENZIVFrOyFwd6CJmVPNZSEKB6BPEHcdmnKIbP6893GJlGYAQvEr9cR-8Tx5fxg/exec"
+    // ТУТ ТВОИ ВОПРОСЫ. Формат: correct - это индекс правильного ответа (с 0!)
+    const questionsDB = {
+        itog: [
+            {
+                text: "Чем оказывается ПМП?",
+                options: ["Дефибриллятором", "Перикисью", "Обезболом"],
+                correct: 0
+            },
+            {
+                text: "Кому приорететнее оказывать ПМП?",
+                options: ["Силовые структуры", "Граждане", "Криминальные структуры"],
+                correct: 0
+            },
+            {
+                text: "При оказании ПМП на вас направляют оружием, вами действия?",
+                options: ["Продолжу оказывать ПМП", "Подчинюсь людям с оружием", "Начну бить кулаком людей с оружием"],
+                correct: 1
+            },
+            {
+                text: "Вы - водитель матовозки. По каким дорогам можно везти матовозку?",
+                options: ["Асфальт и грунт", "Исключительно асфальт", "Без разницы"],
+                correct: 0
+            },
+            {
+                text: "Какие поставки являются основными для ЦГБ?",
+                options: ["ЦМС, ГСМО", "ВС, ОБ-7", "ЗМХ, МС"],
+                correct: 2
+            },
+            {
+                text: "Сколько минимум сотрудников силовых структур требуется для поставки?",
+                options: ["5 человек", "Без разницы", "20 человек"],
+                correct: 2
+            },
+            {
+                text: "У каких гос.организаций есть матовозка?",
+                options: ["ЦГБ, ВС РФ, ФСО", "УВД, УГИБДД, ЦГБ", "ВС РФ, ЦГБ, ЦОДД"],
+                correct: 0
+            },
+            {
+                text: "Личная безопасность приоритетнее ПМП?",
+                options: ["Нет, если ПМП оказывается гос.структурам", "Личная безопасность приоритетнее", "Нет, ПМП важнее личной безопасности"],
+                correct: 1
+            },
+            {
+                text: "Гражданина сбила машина, и ему требуется ПМП, пациент лежит на дороге, ваши действия?",
+                options: ["Немедленно окажу ПМП на дороге", "Закроюсь машиной и начну оказывать ПМП за автомобилем", "Отнесу пострадавшего на тротуар и оказывать ПМП на нём"],
+                correct: 2
+            },
+            {
+                text: "Что делать, если пострадавший находится в зоне активного огня?",
+                options: ["Оказывать ПМП под пулями", "Отнести в укрытие и оказывать ПМП в нём", "Убежать"],
+                correct: 1
+            },
+            {
+                text: "Разрешено ли использовать автомобили и вертолёты в активной зоне поставки?",
+                options: ["Да", "Нет"],
+                correct: 1
+            },
+            {
+                text: "Сколько минимум машин требуется для перекрытия крайма?",
+                options: ["4 автомобиля", "5 автомобилей", "6 автомобилей"],
+                correct: 0
+            },
+            {
+                text: "Что обозначает тен-код 10-6?",
+                options: ["Принято, понял", "Отмена, отбой", "Общий сбор + место", "Занят, ожидайте"],
+                correct: 3
+            },
+            {
+                text: "Кто является высшим руководством в больнице?",
+                options: ["Главврач и заместитель главного врача", "Заведующий и зам", "Ординатор"],
+                correct: 0
+            },
+            {
+                text: "В какое время проходит обед?",
+                options: ["12:00-13:00", "13:00-14:00", "14:00-15:00"],
+                correct: 1
+            },
+            {
+                text: "Какой отдел занимается собеседованиями и лекциями?",
+                options: ["Отдел Кадров", "Администрация Больницы", "Скорая Медицинская Помощь"],
+                correct: 0
+            },
+            {
+                text: "Как Устав регулирует оказание помощи гражданам?",
+                options: ["Помощь только по записи", "Помощь только за плату", "Помощь всем без дискриминации"],
+                correct: 2
+            },
+            {
+                text: "Какой внешний вид должен быть у сотрудника согласно Уставу?",
+                options: ["Любая удобная одежда", "Служебная форма согласно Уставу и внутренним требованиям", "Только белый халат"],
+                correct: 1
+            },
+            {
+                text: "Куда сотрудник вправе подать жалобу на наложенное взыскание?",
+                options: ["В Профсоюз", "Главврачу и его заместителям", "В министерство соцполитики и труда"],
+                correct: 1
+            },
+            {
+                text: "Что препятствует переводу сотрудника в другое отделение?",
+                options: ["Дисциплинарное взыскание", "Отсутствие медосмотра", "Мнение заведующего"],
+                correct: 0
+            },
+            {
+                text: "Сколько времени отводится на стажировку нового сотрудника после подписания договора?",
+                options: ["3 дня", "14 дней ", "5 дней"],
+                correct: 2
+            },
+            {
+                text: "Какое подразделение следит за исполнением обязанностей, поддерживает дисциплину и проводит проверки?",
+                options: ["Администрация больницы", "Отдел Кадров", "Никто"],
+                correct: 0
+            },
+            {
+                text: "Какой документ определяет обязанности, права сотрудников и внутренний распорядок?",
+                options: ["Должностная инструкция главврача", "Устав больницы", "Медицинская карта"],
+                correct: 1
+            },
+            {
+                text: "Когда в больнице проходит собеседование?",
+                options: ["16:30 - 17:00, 20:30 - 21:00", "На постоянной основе", "16:00 - 16:30, 21:00 - 21:30"],
+                correct: 0
+            },
+            {
+                text: "В какое время дежурство считается ночным?",
+                options: ["Не считается", "20:00 - 10:00", "21:00 - 10:00"],
+                correct: 2
+            },
+            {
+                text: "Что запрещено во время смены?",
+                options: ["Алкоголь, курение, наркотики", "Ношение оружия и боеприпасов", "Самовольное покидание рабочего места", "Всё вышеперечисленное"],
+                correct: 3
+            },
+            {
+                text: "Какие должности НЕ относятся к младшему-среднему составу?",
+                options: ["Ординатор и врач высшей категории", "Водитель скорой помощи, фармацевт, санитар и фельдшер", "Главврач, заместитель главного врача, заведующий отделением и заместитель заведующего отделением"],
+                correct: 2
+            },
+            {
+                text: "Если в отчёности по таблеткам последнее сообщение 191-200, то как вы напишите?",
+                options: ["0-10", "201-210", "*статик* 201-210"],
+                correct: 1
+            },
+            {
+                text: "Какой тип счёта в отчёности?",
+                options: ["Общий", "Личный", "Общий + статик"],
+                correct: 0
+            }
+        ]
+    };
+
+    let currentQuestions = [];
+    let currentExamType = "";
+    let currentUser = { static: "" };
+
+function startExam(type) {
+    // Берем только статик
+    const staticInfo = document.getElementById('input-static').value.trim();
+
+    if (!staticInfo) {
+        alert("Пожалуйста, введите Имя Фамилия | Статик перед началом!");
+        return;
+    }
+
+    currentUser.static = staticInfo;
+    currentExamType = type;
+
+    // --- ЖЁСТКАЯ ПРИВЯЗКА ВОПРОСОВ ---
+    if (type === 'itog') {
+        currentQuestions = questionsDB['itog'];
+    } else {
+        currentQuestions = []; // Если пришел неизвестный тип
+    }
+
+    console.log("Проверка. Тип:", type);
+    console.log("Проверка. Вопросы в currentQuestions:", currentQuestions);
+
+    // Если вопросы по какой-то причине не загрузились, остановимся
+    if (!currentQuestions || currentQuestions.length === 0) {
+        alert("Ошибка: Вопросы для экзамена не найдены!");
+        return;
+    }
+    
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('exam-screen').style.display = 'block';
+
+    // Прячем стартовый экран
+    document.getElementById('start-screen').style.display = 'none';
+    // Показываем экзамен
+    document.getElementById('exam-screen').style.display = 'block';
+    // Прячем результаты
+    document.getElementById('result-screen').style.display = 'none';
+    
+    const examTitle = type === 'itog' ? 'Итоговый' : 'Экзамен по ПМП';
+    document.getElementById('exam-title').innerText = examTitle;
+    document.getElementById('user-info').innerHTML = `<b>Сотрудник:</b> ${staticInfo}`;
+
+    const form = document.getElementById('exam-form');
+    form.innerHTML = ''; 
+
+    currentQuestions.forEach((q, index) => {
+        let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
+        q.options.forEach((opt, optIndex) => {
+            html += `<label class="option"><input type="radio" name="q${index}" value="${optIndex}" required> ${opt}</label>`;
+        });
+        html += `</div>`;
+        form.innerHTML += html;
+    });
+
+    console.log("Отрисовка завершена!");
+}
+    function submitExam() {
+    const form = document.getElementById('exam-form');
+    if (!form.checkValidity()) {
+        alert("Ответьте на все вопросы!");
+        return;
+    }
+
+    let correctCount = 0;
+    currentQuestions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`).value;
+        if (parseInt(selected) === q.correct) {
+            correctCount++;
+        }
+    });
+
+    const total = currentQuestions.length;
+    const score = Math.round((correctCount / total) * 100);
+    const passed = score >= 90;
+    const examName = currentExamType === 'itog' ? 'Итоговый' : 'ПМП';
+
+    // --- ОТПРАВКА ДАННЫХ В GOOGLE ТАБЛИЦУ ---
+    const payload = {
+        user: currentUser.static,
+        examType: examName,
+        correct: correctCount,
+        total: total,
+        score: score,
+        passed: passed
+    };
+
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+    }).catch(err => console.error("Ошибка отправки:", err));
+    // -----------------------------------------
+
+    document.getElementById('result-title').innerText = `Результат: Экзамен по ${examName}`;
+    document.getElementById('exam-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+
+    const scoreDisplay = document.getElementById('score-display');
+    scoreDisplay.innerText = score + '%';
+    document.getElementById('result-user').innerHTML = `Сотрудник: <b>${currentUser.static}</b>`;
+    scoreDisplay.className = 'score ' + (passed ? 'pass' : 'fail');
+    
+    document.getElementById('score-text').innerText = `Правильных ответов: ${correctCount} из ${total}`;
+    document.getElementById('verdict-text').innerText = passed ? 'СДАНО' : 'НЕ СДАНО';
+    document.getElementById('verdict-text').style.color = passed ? '#16a34a' : '#dc2626';
+    document.getElementById('verdict-text').style.fontWeight = 'bold';
+}
+</script>
+
+</body>
+</html>
