@@ -186,26 +186,31 @@ function startExam(type) {
 
     // Используем уже перемешанный currentQuestions
     currentQuestions.forEach((q, index) => {
-    let optionsWithStatus = q.options.map((opt, optIndex) => {
-        let isCorrect = false;
-        if (Array.isArray(q.correct)) {
-            isCorrect = q.correct.includes(optIndex);
-        } else {
-            isCorrect = (q.correct === optIndex);
+    // Если вдруг у вопроса нет массива options, пропускаем его и пишем в консоль
+        if (!q.options || !Array.isArray(q.options)) {
+            console.error("ОШИБКА В ВОПРОСЕ №" + (index + 1) + ": отсутствует массив options!", q);
+            return; 
         }
-        return { text: opt, isCorrect: isCorrect };
-    });
 
-    shuffleArray(optionsWithStatus);
+        let optionsWithStatus = q.options.map((opt, optIndex) => {
+            let isCorrect = false;
+            if (Array.isArray(q.correct)) {
+                isCorrect = q.correct.includes(optIndex);
+            } else {
+                isCorrect = (q.correct === optIndex);
+            }
+            return { text: opt, isCorrect: isCorrect };
+        });
 
-    let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
-    optionsWithStatus.forEach((optObj, newIndex) => {
-        // Если ответ правильный, добавляем атрибут data-correct="true"
-        const dataCorrect = optObj.isCorrect ? 'data-correct="true"' : '';
-        html += `<label class="option"><input type="radio" name="q${index}" value="${newIndex}" ${dataCorrect} required> ${optObj.text}</label>`;
-    });
-    html += `</div>`;
-    allHtml += html;
+        shuffleArray(optionsWithStatus);
+
+        let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
+        optionsWithStatus.forEach((optObj, newIndex) => {
+            const dataCorrect = optObj.isCorrect ? 'data-correct="true"' : '';
+            html += `<label class="option"><input type="radio" name="q${index}" value="${newIndex}" ${dataCorrect} required> ${optObj.text}</label>`;
+        });
+        html += `</div>`;
+        allHtml += html;
     });
 }
 
