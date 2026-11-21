@@ -168,13 +168,16 @@ function startExam(type) {
     }
 
     currentUser.static = staticInfo;
-    currentExamType = type; // Запоминаем тип экзамена (itog или ok)
+    currentExamType = type;
     
-    // Берем нужный массив вопросов и делаем его копию, чтобы не перемешивать оригинал
-    currentQuestions = [...questionsDB[type]]; 
-    
-    // ПЕРЕМЕШИВАЕМ ВОПРОСЫ
-    shuffleArray(currentQuestions);
+    // Берем вопросы
+    currentQuestions = questionsDB[type] ? [...questionsDB[type]] : [];
+
+    // --- ВСТРОЕННОЕ ПЕРЕМЕШИВАНИЕ ВОПРОСОВ ---
+    for (let i = currentQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
+    }
 
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('exam-screen').style.display = 'block';
@@ -184,14 +187,11 @@ function startExam(type) {
     const form = document.getElementById('exam-form');
     let allHtml = '';
 
-    // Используем уже перемешанный currentQuestions
     currentQuestions.forEach((q, index) => {
-    // Если вдруг у вопроса нет массива options, пропускаем его и пишем в консоль
-        if (!q.options || !Array.isArray(q.options)) {
-            console.error("ОШИБКА В ВОПРОСЕ №" + (index + 1) + ": отсутствует массив options!", q);
-            return; 
-        }
+        // Если у вопроса нет вариантов - пропускаем
+        if (!q.options || !Array.isArray(q.options)) return;
 
+        // Собираем варианты
         let optionsWithStatus = q.options.map((opt, optIndex) => {
             let isCorrect = false;
             if (Array.isArray(q.correct)) {
@@ -202,7 +202,11 @@ function startExam(type) {
             return { text: opt, isCorrect: isCorrect };
         });
 
-        shuffleArray(optionsWithStatus);
+        // --- ВСТРОЕННОЕ ПЕРЕМЕШИВАНИЕ ОТВЕТОВ ---
+        for (let i = optionsWithStatus.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [optionsWithStatus[i], optionsWithStatus[j]] = [optionsWithStatus[j], optionsWithStatus[i]];
+        }
 
         let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
         optionsWithStatus.forEach((optObj, newIndex) => {
@@ -212,6 +216,9 @@ function startExam(type) {
         html += `</div>`;
         allHtml += html;
     });
+
+    form.innerHTML = allHtml;
+    console.log("Отрисовка завершена! Сгенерировано вопросов:", currentQuestions.length);
 }
 
 function submitExam() {
