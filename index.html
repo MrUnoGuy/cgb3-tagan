@@ -186,39 +186,27 @@ function startExam(type) {
 
     // Используем уже перемешанный currentQuestions
     currentQuestions.forEach((q, index) => {
-    // 1. Создаем массив из объектов: сам текст + был ли он правильным
-        let optionsWithStatus = q.options.map((opt, optIndex) => {
-            let isCorrect = false;
-        // Проверяем, правильный ли это ответ (поддерживаем и число, и массив)
-            if (Array.isArray(q.correct)) {
+    let optionsWithStatus = q.options.map((opt, optIndex) => {
+        let isCorrect = false;
+        if (Array.isArray(q.correct)) {
             isCorrect = q.correct.includes(optIndex);
-        }     else {
+        } else {
             isCorrect = (q.correct === optIndex);
         }
-            return { text: opt, isCorrect: isCorrect };
-        });
-
-    // 2. Перемешиваем этот массив
-        shuffleArray(optionsWithStatus);
-
-    // 3. Собираем HTML заново, используя уже перемешанные варианты
-        let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
-        optionsWithStatus.forEach((optObj, newIndex) => {
-        // В value пишем новый индекс (0, 1, 2...), чтобы форма работала
-            html += `<label class="option"><input type="radio" name="q${index}" value="${newIndex}" required> ${optObj.text}</label>`;
-        });
-        html += `</div>`;
-        allHtml += html;
-
-    // 4. ВАЖНО: сохраняем новые правильные индексы для этого вопроса
-    // Чтобы submitExam знал, какие варианты теперь правильные
-        q.newCorrectIndices = optionsWithStatus
-            .map((opt, idx) => opt.isCorrect ? idx : -1)
-            .filter(idx => idx !== -1);
+        return { text: opt, isCorrect: isCorrect };
     });
 
-    form.innerHTML = allHtml;
-}
+    shuffleArray(optionsWithStatus);
+
+    let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
+    optionsWithStatus.forEach((optObj, newIndex) => {
+        // Если ответ правильный, добавляем атрибут data-correct="true"
+        const dataCorrect = optObj.isCorrect ? 'data-correct="true"' : '';
+        html += `<label class="option"><input type="radio" name="q${index}" value="${newIndex}" ${dataCorrect} required> ${optObj.text}</label>`;
+    });
+    html += `</div>`;
+    allHtml += html;
+});
 
 function submitExam() {
     const form = document.getElementById('exam-form');
@@ -228,21 +216,15 @@ function submitExam() {
     }
 
     let correctCount = 0;
-    // Проверяем ТОЛЬКО те вопросы, которые сейчас на экране (в currentQuestions)
-    currentQuestions.forEach((q, index) => {
-        const selected = document.querySelector(`input[name="q${index}"]:checked`).value;
-        
-        // Поддержка как одного ответа (число), так и нескольких (массив)
-        if (Array.isArray(q.correct)) {
-            if (q.NewCorrectIndices.includes(parseInt(selected))) {
-                correctCount++;
-            }
-        } else {
-            if (parseInt(selected) === q.correct) {
-                correctCount++;
-            }
-        }
-    });
+currentQuestions.forEach((q, index) => {
+    // Находим выбранную кнопку
+    const selectedInput = document.querySelector(`input[name="q${index}"]:checked`);
+    
+    // Проверяем, есть ли у выбранной кнопки атрибут data-correct
+    if (selectedInput && selectedInput.hasAttribute('data-correct')) {
+        correctCount++;
+    }
+});
 
     const total = currentQuestions.length; // Считаем от перемешанного массива
     const score = Math.round((correctCount / total) * 100);
