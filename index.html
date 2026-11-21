@@ -186,12 +186,35 @@ function startExam(type) {
 
     // Используем уже перемешанный currentQuestions
     currentQuestions.forEach((q, index) => {
+    // 1. Создаем массив из объектов: сам текст + был ли он правильным
+        let optionsWithStatus = q.options.map((opt, optIndex) => {
+            let isCorrect = false;
+        // Проверяем, правильный ли это ответ (поддерживаем и число, и массив)
+            if (Array.isArray(q.correct)) {
+            isCorrect = q.correct.includes(optIndex);
+        }     else {
+            isCorrect = (q.correct === optIndex);
+        }
+            return { text: opt, isCorrect: isCorrect };
+        });
+
+    // 2. Перемешиваем этот массив
+        shuffleArray(optionsWithStatus);
+
+    // 3. Собираем HTML заново, используя уже перемешанные варианты
         let html = `<div class="question"><div class="q-text">${index + 1}. ${q.text}</div>`;
-        q.options.forEach((opt, optIndex) => {
-            html += `<label class="option"><input type="radio" name="q${index}" value="${optIndex}" required> ${opt}</label>`;
+        optionsWithStatus.forEach((optObj, newIndex) => {
+        // В value пишем новый индекс (0, 1, 2...), чтобы форма работала
+            html += `<label class="option"><input type="radio" name="q${index}" value="${newIndex}" required> ${optObj.text}</label>`;
         });
         html += `</div>`;
         allHtml += html;
+
+    // 4. ВАЖНО: сохраняем новые правильные индексы для этого вопроса
+    // Чтобы submitExam знал, какие варианты теперь правильные
+        q.newCorrectIndices = optionsWithStatus
+            .map((opt, idx) => opt.isCorrect ? idx : -1)
+            .filter(idx => idx !== -1);
     });
 
     form.innerHTML = allHtml;
@@ -211,7 +234,7 @@ function submitExam() {
         
         // Поддержка как одного ответа (число), так и нескольких (массив)
         if (Array.isArray(q.correct)) {
-            if (q.correct.includes(parseInt(selected))) {
+            if (q.NewCorrectIndices.includes(parseInt(selected))) {
                 correctCount++;
             }
         } else {
